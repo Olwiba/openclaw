@@ -262,6 +262,28 @@ if (process.env.XIAOMI_API_KEY) {
   removeProvider("xiaomi", "Xiaomi", "XIAOMI_API_KEY");
 }
 
+// NVIDIA NIM (OpenAI-compatible: NGC hosted or self-hosted)
+const nvidiaBaseUrl = (process.env.NVIDIA_BASE_URL || "https://integrate.api.nvidia.com/v1").replace(/\/+$/, "");
+if (process.env.NVIDIA_API_KEY) {
+  console.log("[configure] configuring NVIDIA NIM provider");
+  ensure(config, "models", "providers");
+  const base = nvidiaBaseUrl.endsWith("/v1") ? nvidiaBaseUrl : `${nvidiaBaseUrl}/v1`;
+  config.models.providers.nvidia = {
+    api: "openai-completions",
+    apiKey: process.env.NVIDIA_API_KEY,
+    baseUrl: base,
+    models: [
+      { id: "moonshotai/kimi-k2.5", name: "Kimi K2.5 (NIM)", contextWindow: 128000 },
+      { id: "mistralai/mistral-large-2-instruct", name: "Mistral Large 2 (NIM)", contextWindow: 128000 },
+      { id: "meta/llama3-70b", name: "Llama 3 70B (NIM)", contextWindow: 8192 },
+      { id: "nvidia/nemotron-4-340b-instruct", name: "Nemotron 4 340B (NIM)", contextWindow: 128000 },
+      { id: "deepseek-ai/deepseek-r1", name: "DeepSeek R1 (NIM)", contextWindow: 64000 },
+    ],
+  };
+} else {
+  removeProvider("nvidia", "NVIDIA NIM", "NVIDIA_API_KEY");
+}
+
 // Amazon Bedrock (uses AWS credential chain)
 if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
   console.log("[configure] configuring Amazon Bedrock provider");
@@ -306,7 +328,9 @@ if (ollamaUrl) {
 }
 
 // ── Primary model selection (first available provider wins) ─────────────────
+// NVIDIA NIM first (free tier at build.nvidia.com); then paid providers
 const primaryCandidates = [
+  [process.env.NVIDIA_API_KEY,         "nvidia/moonshotai/kimi-k2.5"],
   [process.env.ANTHROPIC_API_KEY,      "anthropic/claude-opus-4-5-20251101"],
   [process.env.OPENAI_API_KEY,         "openai/gpt-5.2"],
   [process.env.OPENROUTER_API_KEY,     "openrouter/anthropic/claude-opus-4-5"],
@@ -605,7 +629,8 @@ const hasProvider =
   // Custom proxy providers also need env var keys
   !!process.env.VENICE_API_KEY || !!process.env.MINIMAX_API_KEY ||
   !!process.env.MOONSHOT_API_KEY || !!process.env.KIMI_API_KEY ||
-  !!process.env.SYNTHETIC_API_KEY || !!process.env.XIAOMI_API_KEY;
+  !!process.env.SYNTHETIC_API_KEY || !!process.env.XIAOMI_API_KEY ||
+  !!process.env.NVIDIA_API_KEY;
 
 if (!hasProvider) {
   console.error("[configure] ERROR: No AI provider API key set.");
@@ -614,7 +639,7 @@ if (!hasProvider) {
   console.error("[configure]   XAI_API_KEY, GROQ_API_KEY, MISTRAL_API_KEY, CEREBRAS_API_KEY, ZAI_API_KEY,");
   console.error("[configure]   AI_GATEWAY_API_KEY, OPENCODE_API_KEY, COPILOT_GITHUB_TOKEN, VENICE_API_KEY,");
   console.error("[configure]   MOONSHOT_API_KEY, KIMI_API_KEY, MINIMAX_API_KEY, SYNTHETIC_API_KEY, XIAOMI_API_KEY,");
-  console.error("[configure]   AWS_ACCESS_KEY_ID+AWS_SECRET_ACCESS_KEY (Bedrock), or OLLAMA_BASE_URL (local)");
+  console.error("[configure]   NVIDIA_API_KEY, AWS_ACCESS_KEY_ID+AWS_SECRET_ACCESS_KEY (Bedrock), or OLLAMA_BASE_URL (local)");
   process.exit(1);
 }
 

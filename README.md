@@ -114,8 +114,10 @@ Triggers: `schedule: '0 */6 * * *'` + `workflow_dispatch` (version, force_rebuil
 | `SYNTHETIC_API_KEY` | Synthetic API key (Anthropic-compatible). |
 | `COPILOT_GITHUB_TOKEN` | GitHub Copilot token. Configures Claude models via GitHub. |
 | `XIAOMI_API_KEY` | Xiaomi MiMo API key (Anthropic-compatible). Configures MiMo v2 Flash. |
+| `NVIDIA_API_KEY` | NVIDIA NIM API key (OpenAI-compatible). NGC hosted or self-hosted NIM. See [NVIDIA NIM](https://build.nvidia.com/). |
+| `NVIDIA_BASE_URL` | *(optional)* Override NIM base URL (e.g. self-hosted `http://host:8000/v1`). Default: `https://integrate.api.nvidia.com/v1`. |
 
-Multiple providers can be set simultaneously. Priority for primary model: Anthropic > OpenAI > OpenRouter > Gemini > OpenCode > GitHub Copilot > xAI > Groq > Mistral > Cerebras > Venice > Moonshot > Kimi > MiniMax > Synthetic > ZAI > AI Gateway > Xiaomi > Bedrock > Ollama.
+Multiple providers can be set simultaneously. Priority for primary model: NVIDIA NIM (free tier) > Anthropic > OpenAI > OpenRouter > Gemini > OpenCode > GitHub Copilot > xAI > Groq > Mistral > Cerebras > Venice > Moonshot > Kimi > MiniMax > Synthetic > ZAI > AI Gateway > Xiaomi > Bedrock > Ollama. Default NIM model: Kimi K2.5 (`moonshotai/kimi-k2.5`).
 
 If a provider env var is removed, that provider section is cleaned from `openclaw.json` on next start.
 
