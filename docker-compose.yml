@@ -35,6 +35,7 @@ services:
     volumes:
       - openclaw-data:/data
       - /opt/seekers-vault:/data/workspace/seekers-vault
+      - /root/.ssh:/root/.ssh:ro
     depends_on:
       - browser
     restart: unless-stopped
