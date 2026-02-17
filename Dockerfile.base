@@ -70,6 +70,12 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 RUN curl -fsSL https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:${PATH}"
 
+# Ensure tool paths survive login-shell PATH reset (/etc/profile overwrites PATH)
+RUN printf '%s\n' \
+  'export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/go/bin:/root/.local/bin:$PATH"' \
+  > /etc/profile.d/custom-tools.sh \
+  && chmod +x /etc/profile.d/custom-tools.sh
+
 # Install under /opt/openclaw/app so that ../../ from dist/ lands at /opt/openclaw
 # which is where we place the symlinks. This avoids polluting / with project files.
 COPY --from=openclaw-build /openclaw /opt/openclaw/app
