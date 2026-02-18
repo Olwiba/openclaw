@@ -35,6 +35,7 @@ services:
       # Integrations
       - LINEAR_API_KEY=${LINEAR_API_KEY:-}
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY:-}
     volumes:
       - openclaw-data:/data
       - /opt/seekers-vault:/data/workspace/seekers-vault

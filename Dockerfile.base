@@ -29,6 +29,7 @@ RUN set -eux; \
   done
 
 RUN pnpm install --no-frozen-lockfile
+RUN pnpm add playwright
 RUN pnpm build
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:install && pnpm ui:build
@@ -43,7 +44,14 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    file \
+    git \
+    procps \
   && rm -rf /var/lib/apt/lists/*
+
+# Homebrew (for ad-hoc installs in the container)
+RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 
 # Install under /opt/openclaw/app so that ../../ from dist/ lands at /opt/openclaw
 # which is where we place the symlinks. This avoids polluting / with project files.
@@ -58,3 +66,6 @@ RUN printf '%s\n' '#!/usr/bin/env bash' 'exec node /opt/openclaw/app/openclaw.mj
 RUN ln -s /opt/openclaw/app/docs /opt/openclaw/docs \
   && ln -s /opt/openclaw/app/assets /opt/openclaw/assets \
   && ln -s /opt/openclaw/app/package.json /opt/openclaw/package.json
+
+# Playwright + Chromium (browser automation)
+RUN cd /opt/openclaw/app && npx playwright install --with-deps chromium
