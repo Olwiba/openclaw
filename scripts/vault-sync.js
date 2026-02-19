@@ -156,6 +156,28 @@ function deepMerge(target, source) {
   return target;
 }
 
+// ── Workspace file writer ─────────────────────────────────────────────────────
+// openclaw reads system prompts from workspace files (IDENTITY.md etc.), not
+// from the JSON config. Write SOUL.md body → <workspace>/IDENTITY.md so the
+// agent's personality reaches openclaw through the supported mechanism.
+
+function writeAgentWorkspaceFiles(agent) {
+  if (!agent.systemPrompt) return;
+
+  // Resolve workspace: prefer CONFIG.md workspace, fall back to STATE_DIR/agents/<id>
+  const workspace = agent.config?.workspace ||
+    path.join(STATE_DIR, "agents", agent.id);
+
+  try {
+    fs.mkdirSync(workspace, { recursive: true });
+    const identityPath = path.join(workspace, "IDENTITY.md");
+    fs.writeFileSync(identityPath, agent.systemPrompt);
+    console.log(`[vault-sync] wrote IDENTITY.md for ${agent.id} → ${identityPath}`);
+  } catch (err) {
+    console.error(`[vault-sync] failed to write workspace files for ${agent.id}:`, err.message);
+  }
+}
+
 // ── Agent Discovery ──────────────────────────────────────────────────────────
 // Recursively walks the agents/ directory tree looking for SOUL.md/CONFIG.md pairs.
 
@@ -206,35 +228,12 @@ function discoverAgents(dir, agents) {
 function generateAgentConfig(agent) {
   const config = {};
 
-  // Model configuration
-  if (agent.config?.model) {
-    config.model = {};
-    if (agent.config.model.primary) config.model.primary = agent.config.model.primary;
-    if (agent.config.model.fallback) config.model.fallback = agent.config.model.fallback;
-  }
-
-  // System prompt from SOUL.md body
-  if (agent.systemPrompt) {
-    config.instructions = agent.systemPrompt;
-  }
-
-  // Workspace
+  // Workspace — the only per-agent override agents.list[] reliably accepts.
+  // Model, tools, sandbox go in agents.defaults (global), not per-list-entry.
+  // System prompt (SOUL.md body) is written to the workspace as IDENTITY.md
+  // by writeAgentWorkspaceFiles() — not injected via JSON config.
   if (agent.config?.workspace) {
     config.workspace = agent.config.workspace;
-  }
-
-  // Tools
-  if (agent.config?.tools) {
-    config.tools = {};
-    if (agent.config.tools.allow) config.tools.allow = agent.config.tools.allow;
-    if (agent.config.tools.deny) config.tools.deny = agent.config.tools.deny;
-  }
-
-  // Sandbox
-  if (agent.config?.sandbox) {
-    config.sandbox = {};
-    if (agent.config.sandbox.mode) config.sandbox.mode = agent.config.sandbox.mode;
-    if (agent.config.sandbox.scope) config.sandbox.scope = agent.config.sandbox.scope;
   }
 
   return config;
@@ -283,6 +282,9 @@ function runSync() {
       } else {
         config.agents.list.push({ id: agent.id, ...agentConfig });
       }
+
+      // Write SOUL.md → workspace/IDENTITY.md (openclaw reads identity from workspace files)
+      writeAgentWorkspaceFiles(agent);
     }
 
     // 6. Write updated config

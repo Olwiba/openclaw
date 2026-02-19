@@ -70,6 +70,16 @@ if (config.memorySearch) {
   delete config.memorySearch;
 }
 
+if (config.compaction !== undefined) {
+  console.log("[configure] removing legacy compaction config (removed from schema)");
+  delete config.compaction;
+}
+
+if (config.agents?.defaults?.memorySearch?.experimental?.sources !== undefined) {
+  console.log("[configure] removing legacy memorySearch.experimental.sources (removed from schema)");
+  delete config.agents.defaults.memorySearch.experimental.sources;
+}
+
 // Migrate legacy agents.<id> object entries → agents.list array.
 // Schema changed: arbitrary keys under agents are no longer valid;
 // custom agents now live in agents.list[].
