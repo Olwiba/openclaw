@@ -528,7 +528,7 @@ if (process.env.DISCORD_BOT_TOKEN) {
   dc.enabled = true;
 
   // strings
-  if (process.env.DISCORD_DM_POLICY)              { ensure(dc, "dm"); dc.dm.policy = process.env.DISCORD_DM_POLICY; }
+  if (process.env.DISCORD_DM_POLICY)              dc.dmPolicy = process.env.DISCORD_DM_POLICY;
   if (process.env.DISCORD_GROUP_POLICY)            dc.groupPolicy = process.env.DISCORD_GROUP_POLICY;
   if (process.env.DISCORD_REPLY_TO_MODE)           dc.replyToMode = process.env.DISCORD_REPLY_TO_MODE;
   if (process.env.DISCORD_CHUNK_MODE)              dc.chunkMode = process.env.DISCORD_CHUNK_MODE;
@@ -585,7 +585,7 @@ if (process.env.SLACK_BOT_TOKEN && process.env.SLACK_APP_TOKEN) {
   if (process.env.SLACK_SIGNING_SECRET)          sl.signingSecret = process.env.SLACK_SIGNING_SECRET;
   if (process.env.SLACK_MODE)                    sl.mode = process.env.SLACK_MODE;
   if (process.env.SLACK_WEBHOOK_PATH)            sl.webhookPath = process.env.SLACK_WEBHOOK_PATH;
-  if (process.env.SLACK_DM_POLICY)               { ensure(sl, "dm"); sl.dm.policy = process.env.SLACK_DM_POLICY; }
+  if (process.env.SLACK_DM_POLICY)               sl.dmPolicy = process.env.SLACK_DM_POLICY;
   if (process.env.SLACK_GROUP_POLICY)            sl.groupPolicy = process.env.SLACK_GROUP_POLICY;
   if (process.env.SLACK_REPLY_TO_MODE)           sl.replyToMode = process.env.SLACK_REPLY_TO_MODE;
   if (process.env.SLACK_REACTION_NOTIFICATIONS)  sl.reactionNotifications = process.env.SLACK_REACTION_NOTIFICATIONS;

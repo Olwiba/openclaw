@@ -283,6 +283,10 @@ function runSync() {
         config.agents.list.push({ id: agent.id, ...agentConfig });
       }
 
+      // Ensure sessions directory exists (doctor reports CRITICAL if missing)
+      const sessionsDir = path.join(STATE_DIR, "agents", agent.id, "sessions");
+      fs.mkdirSync(sessionsDir, { recursive: true });
+
       // Write SOUL.md → workspace/IDENTITY.md (openclaw reads identity from workspace files)
       writeAgentWorkspaceFiles(agent);
     }
