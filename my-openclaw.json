@@ -1,9 +1,6 @@
 {
   "gateway": {
-    "trustedProxies": ["127.0.0.1", "172.16.0.0/12"],
-    "controlUi": {
-      "allowedOrigins": ["https://openclaw.tail58d64c.ts.net"]
-    }
+    "trustedProxies": ["127.0.0.1", "172.16.0.0/12"]
   },
   "agents": {
     "defaults": {
