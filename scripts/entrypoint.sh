@@ -117,6 +117,19 @@ else
   echo "[entrypoint] no AUTH_PASSWORD set, nginx will not require authentication"
 fi
 
+# Build vault-webhook proxy location block (no auth — HMAC validated by vault-webhook itself)
+VAULT_WEBHOOK_LOCATION_BLOCK=""
+if [ "${VAULT_SYNC_ENABLED:-}" = "true" ]; then
+  VAULT_WEBHOOK_LOCATION_BLOCK='location /hooks/ {
+        proxy_pass http://vault-webhook:9000/hooks/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+    }'
+fi
+
 # Build hooks location block (skips HTTP basic auth, openclaw validates hook token)
 HOOKS_LOCATION_BLOCK=""
 if [ -n "$HOOKS_PATH" ]; then
@@ -205,6 +218,8 @@ server {
         return 200 '{"ok":true,"gateway":"starting"}';
         default_type application/json;
     }
+
+    ${VAULT_WEBHOOK_LOCATION_BLOCK}
 
     ${HOOKS_LOCATION_BLOCK}
 

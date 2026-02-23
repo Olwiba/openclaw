@@ -53,8 +53,6 @@ services:
     volumes:
       - /opt/seekers-vault:/vault
       - /root/.ssh:/root/.ssh:ro
-    ports:
-      - "9000:9000"
     restart: unless-stopped
 
   browser:
