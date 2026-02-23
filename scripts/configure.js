@@ -155,14 +155,10 @@ if (token) {
   config.gateway.auth.token = token;
 }
 
-// Allow control UI without device pairing (only set defaults, don't overwrite)
+// Allow control UI without device pairing — always force in Docker (nginx handles auth)
 ensure(config, "gateway", "controlUi");
-if (config.gateway.controlUi.allowInsecureAuth === undefined) {
-  config.gateway.controlUi.allowInsecureAuth = true;
-}
-if (config.gateway.controlUi.enabled === undefined) {
-  config.gateway.controlUi.enabled = true;
-}
+config.gateway.controlUi.allowInsecureAuth = true;
+config.gateway.controlUi.enabled = true;
 
 // ── Agents defaults ─────────────────────────────────────────────────────────
 
