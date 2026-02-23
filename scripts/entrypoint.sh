@@ -50,6 +50,7 @@ fi
 
 mkdir -p "$STATE_DIR" "$WORKSPACE_DIR"
 mkdir -p "$STATE_DIR/agents/main/sessions" "$STATE_DIR/credentials"
+mkdir -p "$WORKSPACE_DIR/repos"
 chmod 700 "$STATE_DIR"
 
 # Export state/workspace dirs so openclaw CLI + configure.js see them
