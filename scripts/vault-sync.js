@@ -228,12 +228,15 @@ function discoverAgents(dir, agents) {
 function generateAgentConfig(agent) {
   const config = {};
 
-  // Workspace — the only per-agent override agents.list[] reliably accepts.
-  // Model, tools, sandbox go in agents.defaults (global), not per-list-entry.
-  // System prompt (SOUL.md body) is written to the workspace as IDENTITY.md
-  // by writeAgentWorkspaceFiles() — not injected via JSON config.
+  // Workspace: per-agent path for session files and IDENTITY.md.
   if (agent.config?.workspace) {
     config.workspace = agent.config.workspace;
+  }
+
+  // Model: openclaw accepts a string (primary model ID) per agents.list entry.
+  // Syncing this overwrites any stale model string in the persisted config.
+  if (agent.config?.model?.primary) {
+    config.model = agent.config.model.primary;
   }
 
   return config;
