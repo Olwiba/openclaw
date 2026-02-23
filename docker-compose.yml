@@ -37,7 +37,7 @@ services:
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
       - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY:-}
     ports:
-      - "8080:8080"
+      - "18788:8080"
     volumes:
       - openclaw-data:/data
       - /opt/seekers-vault:/data/workspace/seekers-vault
