@@ -36,26 +36,40 @@ docker compose up -d
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│  Docker container (coollabsio/openclaw)     │
-│                                             │
-│  Baked in: Linuxbrew, Go, uv, build-essential│
-│  Persistent volume: /data                   │
-│    ├── .openclaw/      (state & config)     │
-│    └── workspace/      (user projects)      │
-│                                             │
-│  ┌──────────┐  :8080   ┌────────────────┐  │
-│  │  nginx    │ ──────→  │  openclaw      │  │
-│  │  (basic   │  proxy   │  gateway       │  │
-│  │   auth)   │  :18789  │  :18789        │  │
-│  └──────────┘          └────────────────┘  │
-│                                             │
-│  entrypoint.sh                              │
-│    1. run custom init script (optional)     │
-│    2. configure.js (env vars → json)        │
-│    3. nginx (background)                    │
-│    4. exec openclaw gateway                 │
-└─────────────────────────────────────────────┘
+  GitHub push
+      │
+      ▼ :9000 (HMAC-validated)
+┌─────────────────────┐
+│   vault-webhook     │  Dockerfile.webhook
+│   (adnanh/webhook)  │
+│   git pull → /vault │
+└─────────────────────┘
+      │ fs.watch
+      ▼
+┌──────────────────────────────────────────────────┐
+│  openclaw container (coollabsio/openclaw)        │
+│                                                  │
+│  Persistent volume: /data                        │
+│    ├── .openclaw/      (state & config)          │
+│    └── workspace/      (user projects)           │
+│  Vault volume: /data/workspace/seekers-vault     │
+│                                                  │
+│  entrypoint.sh                                   │
+│    1. custom init script (optional)              │
+│    2. configure.js  (env vars → openclaw.json)   │
+│    3. vault-sync.js (vault → openclaw.json)      │
+│    4. nginx (background)                         │
+│    5. exec openclaw gateway                      │
+│                                                  │
+│  ┌──────────┐  :8080    ┌────────────────┐       │
+│  │  nginx   │ ────────→ │    openclaw    │       │
+│  │  basic   │   proxy   │    gateway     │       │
+│  │  auth    │  :18789   │    :18789      │       │
+│  └──────────┘           └────────────────┘       │
+│       │                                          │
+│       └── /browser/ ──→ browser sidecar :3000    │
+│       └── /hooks/   ──→ vault-webhook :9000      │
+└──────────────────────────────────────────────────┘
 ```
 
 Two-layer Docker build:
@@ -65,16 +79,20 @@ Two-layer Docker build:
 ## Files
 
 ```
-.github/workflows/auto-update.yml   — cron every 6h, check openclaw releases, build+push
-.github/workflows/build.yml         — CI on push/PR (build only, no push)
-Dockerfile.base                     — multi-stage: build openclaw from source → slim runtime
-Dockerfile                          — FROM base, add nginx + config scripts + entrypoint
-scripts/configure.js                — reads env vars, writes/patches openclaw.json
-scripts/entrypoint.sh               — container entrypoint: configure → nginx → gateway
-scripts/smoke.js                    — smoke test (openclaw --version)
-nginx/default.conf                  — reverse proxy :8080 → :18789, optional basic auth
-.dockerignore                       — standard ignores
-.env.example                        — env var reference
+.github/workflows/auto-update.yml        — cron every 6h, check openclaw releases, build+push
+.github/workflows/build.yml             — CI on push/PR (build only, no push)
+Dockerfile.base                         — multi-stage: build openclaw from source → slim runtime
+Dockerfile                              — FROM base, add nginx + config scripts + entrypoint
+Dockerfile.webhook                      — vault-webhook sidecar (alpine + adnanh/webhook)
+scripts/configure.js                    — reads env vars, writes/patches openclaw.json
+scripts/entrypoint.sh                   — container entrypoint: configure → nginx → gateway
+scripts/vault-sync.js                   — syncs vault agent configs into openclaw.json at startup + watch
+scripts/smoke.js                        — smoke test (openclaw --version)
+scripts/vault-webhook/hooks.json        — webhook trigger rules (HMAC-SHA256 + branch filter)
+scripts/vault-webhook/sync.sh           — runs git pull on the vault after a validated push
+scripts/vault-webhook/entrypoint.sh     — injects GITHUB_WEBHOOK_SECRET at runtime, starts webhook server
+.dockerignore                           — standard ignores
+.env.example                            — env var reference
 ```
 
 ## auto-update.yml workflow
