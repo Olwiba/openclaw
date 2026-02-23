@@ -8,6 +8,7 @@
   "agents": {
     "defaults": {
       "memorySearch": {
+        "provider": "openai",
         "experimental": {
           "sessionMemory": true
         }
