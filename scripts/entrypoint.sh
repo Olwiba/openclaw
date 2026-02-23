@@ -79,6 +79,14 @@ echo "[entrypoint] running configure..."
 node /app/scripts/configure.js
 chmod 600 "$STATE_DIR/openclaw.json"
 
+# ── GitHub token (optional) ───────────────────────────────────────────────
+if [ -n "${GH_TOKEN:-}" ]; then
+  echo "[entrypoint] configuring git HTTPS credential helper for GH_TOKEN..."
+  git config --global credential.helper store
+  echo "https://x-access-token:${GH_TOKEN}@github.com" > /root/.git-credentials
+  chmod 600 /root/.git-credentials
+fi
+
 # ── Vault sync (optional) ─────────────────────────────────────────────────
 if [ "${VAULT_SYNC_ENABLED:-}" = "true" ] && [ -d "${VAULT_PATH:-}" ]; then
   echo "[entrypoint] starting vault sync watcher..."

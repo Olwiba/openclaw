@@ -36,6 +36,8 @@ services:
       - LINEAR_API_KEY=${LINEAR_API_KEY:-}
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
       - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY:-}
+      # GitHub (optional — fine-grained PAT for gh CLI + private repo access)
+      - GH_TOKEN=${GH_TOKEN:-}
     volumes:
       - openclaw-data:/data
       - /opt/seekers-vault:/data/workspace/seekers-vault
