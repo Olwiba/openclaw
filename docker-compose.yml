@@ -36,8 +36,6 @@ services:
       - LINEAR_API_KEY=${LINEAR_API_KEY:-}
       - GOG_ACCOUNT=${GOG_ACCOUNT:-}
       - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY:-}
-    ports:
-      - "18788:8080"
     volumes:
       - openclaw-data:/data
       - /opt/seekers-vault:/data/workspace/seekers-vault
@@ -52,6 +50,8 @@ services:
       dockerfile: Dockerfile.webhook
     environment:
       - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+    ports:
+      - "9000:9000"
     volumes:
       - /opt/seekers-vault:/vault
       - /root/.ssh:/root/.ssh:ro
