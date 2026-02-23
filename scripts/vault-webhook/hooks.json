@@ -3,6 +3,7 @@
     "id": "vault-sync",
     "execute-command": "/config/sync.sh",
     "command-working-directory": "/vault",
+    "execute-in-background": true,
     "response-message": "vault sync triggered",
     "trigger-rule": {
       "and": [
