@@ -11,6 +11,8 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - OPENCLAW_PRIMARY_MODEL=${OPENCLAW_PRIMARY_MODEL:-}
+      # Audio transcription (voice messages)
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY:-}
       # Auth
       - AUTH_USERNAME=${AUTH_USERNAME:-admin}
       - AUTH_PASSWORD=${AUTH_PASSWORD}
