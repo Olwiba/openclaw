@@ -239,6 +239,27 @@ function generateAgentConfig(agent) {
     config.model = agent.config.model.primary;
   }
 
+  // Model fallback: used when primary model is unavailable.
+  if (agent.config?.model?.fallback) {
+    config.modelFallback = agent.config.model.fallback;
+  }
+
+  // Sandbox: required for spawn eligibility — if the requester session is
+  // sandboxed, openclaw rejects targets that have no sandbox config.
+  if (agent.config?.sandbox?.mode) {
+    config.sandbox = {
+      mode: agent.config.sandbox.mode,
+      ...(agent.config.sandbox.scope && { scope: agent.config.sandbox.scope }),
+    };
+  }
+
+  // Tools: allow/deny lists enforced by openclaw at runtime.
+  if (agent.config?.tools?.allow || agent.config?.tools?.deny) {
+    config.tools = {};
+    if (agent.config.tools.allow) config.tools.allow = agent.config.tools.allow;
+    if (agent.config.tools.deny)  config.tools.deny  = agent.config.tools.deny;
+  }
+
   return config;
 }
 

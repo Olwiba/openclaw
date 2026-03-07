@@ -113,13 +113,15 @@ Merge behavior: deep-merge into the existing config (agent configs from vault ad
 | Vault file | Field | → openclaw.json path |
 |------------|-------|---------------------|
 | SOUL.md | body (markdown) | `agents.<id>.instructions` |
-| CONFIG.md | `model.primary` | `agents.<id>.model.primary` |
-| CONFIG.md | `model.fallback` | `agents.<id>.model.fallback` |
+| CONFIG.md | `model.primary` | `agents.<id>.model` (string) |
+| CONFIG.md | `model.fallback` | `agents.<id>.modelFallback` (string) |
 | CONFIG.md | `workspace` | `agents.<id>.workspace` |
 | CONFIG.md | `tools.allow` | `agents.<id>.tools.allow` |
 | CONFIG.md | `tools.deny` | `agents.<id>.tools.deny` |
 | CONFIG.md | `sandbox.mode` | `agents.<id>.sandbox.mode` |
 | CONFIG.md | `sandbox.scope` | `agents.<id>.sandbox.scope` |
+
+Note: `sandbox` is required in `openclaw.json` for spawn eligibility — if the requester session is sandboxed, openclaw rejects spawn targets with no sandbox config.
 
 Only agents with `status: active` are synced. Agents in `setup`, `paused`, or `inactive` are skipped.
 
